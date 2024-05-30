@@ -8,7 +8,7 @@ lateinit var app: App
 class App : JavaPlugin(){
     override fun onEnable() {
         app = this
-        server.pluginManager.registerEvents(TreeBreak(),this)
+        server.pluginManager.registerEvents(TreeBreak(this),this)
     }
 
     override fun onDisable() {

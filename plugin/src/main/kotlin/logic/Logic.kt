@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable
 
 
 class Logic(val plugin: App) {
-    fun replacerTreeToFence(tree: Material){
+    fun replacerTreeToFence(tree: Material, block: Block){
         val fenceType = when (tree) {
             Material.OAK_LOG -> Material.OAK_FENCE
             Material.BIRCH_LOG -> Material.BIRCH_FENCE
@@ -16,6 +16,7 @@ class Logic(val plugin: App) {
             Material.DARK_OAK_LOG -> Material.DARK_OAK_FENCE
             else -> null
         }
+        if (fenceType != null) block.type = fenceType
     }
     fun replaceBlockWithTimer(block: Block, newMaterial: Material, ticks: Int) {
         object : BukkitRunnable() {
