@@ -7,8 +7,8 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 
-class TreeBreak : Listener {
-    private val logic = Logic()
+class TreeBreak(plugin: App) : Listener {
+    private val logic = Logic(plugin)
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent){
         //Проверка на предмет, которым ломают.
