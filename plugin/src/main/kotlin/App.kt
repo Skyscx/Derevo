@@ -1,12 +1,19 @@
+
+import events.TreeBreak
 import org.bukkit.plugin.java.JavaPlugin
+
 
 lateinit var app: App
 
-class App : JavaPlugin() {
-    private lateinit var events: Events
+class App : JavaPlugin(){
     override fun onEnable() {
         app = this
-        events = Events()
-        server.pluginManager.registerEvents(events, this)
+        server.pluginManager.registerEvents(TreeBreak(),this)
     }
+
+    override fun onDisable() {
+        // TODO: Implement this method
+    }
+
+
 }
