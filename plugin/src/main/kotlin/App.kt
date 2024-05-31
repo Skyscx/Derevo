@@ -10,10 +10,4 @@ class App : JavaPlugin(){
         app = this
         server.pluginManager.registerEvents(TreeBreak(this),this)
     }
-
-    override fun onDisable() {
-        // TODO: Implement this method
-    }
-
-
 }
