@@ -1,17 +1,18 @@
 package logic
 
 import App
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
+import kotlin.experimental.and
 
 
 class Logic(private val plugin: App) {
-    fun replacerTreeToFence(tree: Material, block: Block){
-        val fenceType = when (tree) {
+    fun replacerTreeToFence(tree: Material): Material? {
+        return when (tree) {
             Material.OAK_LOG -> Material.OAK_FENCE
             Material.BIRCH_LOG -> Material.BIRCH_FENCE
             Material.SPRUCE_LOG -> Material.SPRUCE_FENCE
@@ -20,7 +21,6 @@ class Logic(private val plugin: App) {
             Material.JUNGLE_LOG -> Material.JUNGLE_FENCE
             else -> null
         }
-        if (fenceType != null) block.type = fenceType
     }
     fun giveFoundBlock(centerBlock: Block): Block? {
         return getRandomTreeBlock(centerBlock)
@@ -42,11 +42,9 @@ class Logic(private val plugin: App) {
     return false
     }
     fun replacerFenceToTree(block: Block, newMaterial: Material, ticks: Int) {
-        object : BukkitRunnable() {
-            override fun run() {
-                block.type = newMaterial
-            }
-        }.runTaskLater(plugin, ticks.toLong())
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            block.type = newMaterial
+        }, ticks.toLong())
     }
     fun checkTypeTreeBlock(tree: Material) : Boolean {
         val treeMaterials = getTreeMaterials()
@@ -102,7 +100,7 @@ class Logic(private val plugin: App) {
         val index = random.nextInt(foundBlocks.size)
         return foundBlocks[index]
     }
-    private fun getTreeMaterials(): List<Material> {
+    fun getTreeMaterials(): List<Material> {
         val treeMaterials = mutableListOf<Material>()
         treeMaterials.add(Material.OAK_LOG)
         treeMaterials.add(Material.SPRUCE_LOG)
@@ -127,5 +125,26 @@ class Logic(private val plugin: App) {
         toolsMaterials.add(Material.GOLDEN_AXE)
         //Можно добавить больше различных предметов чем можно ломать
         return toolsMaterials
+    }
+
+    fun getTree(block: Block, blocks: MutableList<Block>) {
+        val data = block.blockData as Byte
+        val width = if ((data and 0x10.toByte()) != 0.toByte()) 2 else 1
+        val height = if ((data.toInt() and 0x0F) == 1) 3 else 2
+
+        for (i in 0 until width) {
+            for (j in 0 until height) {
+                for (k in 0 until width) {
+                    val x = block.x + i - (width - 1) / 2
+                    val y = block.y + j
+                    val z = block.z + k - (width - 1) / 2
+                    val currentBlock = block.world.getBlockAt(x, y, z)
+
+                    if (currentBlock.type == block.type) {
+                        blocks.add(currentBlock)
+                    }
+                }
+            }
+        }
     }
 }
