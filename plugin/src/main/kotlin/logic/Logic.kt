@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
 
-class Logic(private val plugin: App) {
+class Logic(val plugin: App) {
     //Замена материала установленного блока с древесины на забор
     private fun replacerTreeToFence(tree: Material, block: Block){
         val fenceType = when (tree) {
@@ -24,41 +24,11 @@ class Logic(private val plugin: App) {
         }
         if (fenceType != null) block.type = fenceType
     }
-    //Получение случайного найденного блока
-    fun giveFoundBlock(centerBlock: Block): Block? {
-        return getRandomTreeBlock(centerBlock)
-    }
-    /*fun replacerTreeToFenceInRadius(foundBlock: Block) : Boolean{
-        val fenceType = when (foundBlock.type) {
-            Material.OAK_LOG -> Material.OAK_FENCE
-            Material.BIRCH_LOG -> Material.BIRCH_FENCE
-            Material.SPRUCE_LOG -> Material.SPRUCE_FENCE
-            Material.ACACIA_LOG -> Material.ACACIA_FENCE
-            Material.DARK_OAK_LOG -> Material.DARK_OAK_FENCE
-            Material.JUNGLE_LOG -> Material.JUNGLE_FENCE
-            else -> null
-        }
-        if (fenceType != null) {
-            foundBlock.type = fenceType
-            return true
-        }
-    return false
-    }*/
     //Замена материала установленного блока с забором на древесину с задержкой
     private fun replacerFenceToTree(block: Block, newMaterial: Material, ticks: Int) {
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {
             block.type = newMaterial
         }, ticks.toLong())
-    }
-    //Проверка на содержание материала в списке с деревьями. Возращение Boolean
-    fun checkTypeTreeBlock(tree: Material) : Boolean {
-        val treeMaterials = getTreeMaterials()
-        return treeMaterials.contains(tree)
-    }
-    //Проверка на содержание материала в списке с забором. Возращение Boolean
-    fun checkTypeFenceBlock(fence: Material) : Boolean{
-        val fenceMaterial = getFenceMaterials()
-        return fenceMaterial.contains(fence)
     }
     //Проверка, каким предметом был сломан блок. Возращение Boolean
     fun checkTypeToolsBreak(tools: Material) : Boolean{
@@ -95,20 +65,29 @@ class Logic(private val plugin: App) {
                 }
             }
         }
-        println("Size blocks tree: " + listBlocks.size)
         return listBlocks
     }
     //Обработка списка с найденными блоками
     fun processingTreeBlocks(treeBlocks: List<Block>, player: Player){
-        val sortedTreeBlocks = treeBlocks.sortedBy { block -> block.location.y }
+        val firstBlock = treeBlocks[0]
+        val firstBlockType = firstBlock.type
+        giveTreeToPlayer(player, firstBlockType)
+        replacerTreeToFence(firstBlockType, firstBlock)
+        replacerFenceToTree(firstBlock, firstBlockType, 20*20)
+        val newTreeBlocks = treeBlocks.drop(1)
+        val sortedTreeBlocks = newTreeBlocks.sortedBy { block -> block.location.y }
 
         object : BukkitRunnable(){
             override fun run() {
+                Thread.sleep(500L)
                 for (block in sortedTreeBlocks) {
                     val blockType = block.type
-                    replacerTreeToFence(blockType, block)
                     giveTreeToPlayer(player, blockType)
                     Thread.sleep(500L)
+                    Bukkit.getScheduler().runTask(plugin, Runnable {
+                        replacerTreeToFence(blockType, block)
+                    })
+                    replacerFenceToTree(block, blockType, 20*20)
                 }
             }
         }.runTaskAsynchronously(plugin)
@@ -132,29 +111,6 @@ class Logic(private val plugin: App) {
         }
         return foundBlocks
     }
-    //Конвертация материала с забора на древесину
-    private fun convertFenceToLog(block: Block): Material? {
-        val fenceType = block.type
-        var logType: Material? = null
-        when (fenceType) {
-            Material.OAK_FENCE -> logType = Material.OAK_LOG
-            Material.SPRUCE_FENCE -> logType = Material.SPRUCE_LOG
-            Material.BIRCH_FENCE -> logType = Material.BIRCH_LOG
-            Material.JUNGLE_FENCE -> logType = Material.JUNGLE_LOG
-            Material.DARK_OAK_FENCE -> logType = Material.DARK_OAK_LOG
-            Material.ACACIA_FENCE -> logType = Material.ACACIA_LOG
-            else -> null
-        }
-        return logType
-    }
-    //Получение случайного блока из области 3x3x3
-    private fun getRandomTreeBlock(centerBlock: Block): Block? {
-        val foundBlocks = findTreeInCube(centerBlock)
-        if (foundBlocks.isEmpty()) { return null }
-        val random = Random()
-        val index = random.nextInt(foundBlocks.size)
-        return foundBlocks[index]
-    }
     //Список древесины
     fun getTreeMaterials(): List<Material> {
         val treeMaterials = mutableListOf<Material>()
@@ -165,17 +121,6 @@ class Logic(private val plugin: App) {
         treeMaterials.add(Material.ACACIA_LOG)
         treeMaterials.add(Material.DARK_OAK_LOG)
         return treeMaterials
-    }
-    //Список заборов
-    private fun getFenceMaterials(): List<Material> {
-        val fenceMaterials = mutableListOf<Material>()
-        fenceMaterials.add(Material.OAK_FENCE)
-        fenceMaterials.add(Material.SPRUCE_FENCE)
-        fenceMaterials.add(Material.BIRCH_FENCE)
-        fenceMaterials.add(Material.JUNGLE_FENCE)
-        fenceMaterials.add(Material.ACACIA_FENCE)
-        fenceMaterials.add(Material.DARK_OAK_FENCE)
-        return fenceMaterials
     }
     //Список инструментов
     private fun getToolsList(): List<Material>{

@@ -20,28 +20,6 @@ class TreeBreak(plugin: App) : Listener {
             if (blockType !in tree){ return }
             val listBlocks = logic.findTreeBlocks(block)
             logic.processingTreeBlocks(listBlocks, player)
-            /*
-            if (logic.checkTypeTreeBlock(blockType)){
-                logic.replacerTreeToFence(blockType, block)
-                logic.giveTreeToPlayer(player, blockType)
-                logic.replacerFenceToTree(block, blockType, 20*10)
-
-            }
-
-            if(logic.checkTypeFenceBlock(blockType)) {
-                val blockReplace = logic.giveFoundBlock(block)
-                if (blockReplace != null) {
-                    val blockReplaceType = blockReplace.type
-                    if (logic.replacerTreeToFenceInRadius(blockReplace)) {
-                        logic.giveTreeToPlayer(player, blockReplaceType)
-                        logic.replacerFenceToTree(blockReplace, blockReplaceType, 20*10)
-                    }
-                }
-                event.isCancelled = true
-
-            }
-            */
-
         }
     }
 }
