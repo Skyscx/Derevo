@@ -30,7 +30,7 @@ class Logic(val plugin: App) {
             block.type = newMaterial
         }, ticks.toLong())
     }
-    //Проверка, каким предметом был сломан блок. Возращение Boolean
+    //Проверка, каким предметом был сломан блок.
     fun checkTypeToolsBreak(tools: Material) : Boolean{
         val toolsMaterial = getToolsList()
         return toolsMaterial.contains(tools)
@@ -47,17 +47,13 @@ class Logic(val plugin: App) {
             println("Сломанный блок не содержит данных древесины!")
             return emptyList()
         }
-        // Создайте очередь для хранения блоков, которые должны быть обработаны
         val queue = ArrayDeque<Block>()
         queue.add(centerBlock)
-        // Обработайте блоки в очереди
         while (queue.isNotEmpty()) {
             val currentBlock = queue.removeFirst()
-            // Если блок не в списке, добавьте его и найдите его соседей
             if (currentBlock !in listBlocks) {
                 listBlocks.add(currentBlock)
                 val neighbors = findTreeInCube(currentBlock)
-                // Добавьте соседей в очередь, если они не в списке
                 for (neighbor in neighbors) {
                     if (neighbor !in listBlocks) {
                         queue.add(neighbor)
@@ -76,7 +72,6 @@ class Logic(val plugin: App) {
         replacerFenceToTree(firstBlock, firstBlockType, 20*20)
         val newTreeBlocks = treeBlocks.drop(1)
         val sortedTreeBlocks = newTreeBlocks.sortedBy { block -> block.location.y }
-
         object : BukkitRunnable(){
             override fun run() {
                 Thread.sleep(500L)
@@ -92,7 +87,7 @@ class Logic(val plugin: App) {
             }
         }.runTaskAsynchronously(plugin)
     }
-    //Приватный метод который находит все однотипные блоки в радиусе 3x3x3
+    //Нахождение однотипных блоков в области 3x3x3
     private fun findTreeInCube(centerBlock: Block): List<Block> {
         val foundBlocks = mutableListOf<Block>()
         val targetMaterials = getTreeMaterials()
@@ -126,7 +121,6 @@ class Logic(val plugin: App) {
     private fun getToolsList(): List<Material>{
         val toolsMaterials = mutableListOf<Material>()
         toolsMaterials.add(Material.GOLDEN_AXE)
-        //Можно добавить больше различных предметов чем можно ломать
         return toolsMaterials
     }
 

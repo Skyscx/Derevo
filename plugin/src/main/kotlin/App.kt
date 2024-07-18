@@ -1,7 +1,5 @@
-
 import events.TreeBreak
 import org.bukkit.plugin.java.JavaPlugin
-
 
 lateinit var app: App
 
