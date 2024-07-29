@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.util.Vector
 
 
-class FairBoolEvent : Listener{
+class FireballEvent : Listener{
     @EventHandler
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val player = event.player
